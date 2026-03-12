@@ -2,6 +2,7 @@ import React, { useRef, useState } from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, Alert } from 'react-native';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import { Ionicons } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // Import our new Utilities and Components!
 import { fetchRealVehicleData, fetchProductByBarcode, hashVIN } from '../utils/api';
@@ -34,6 +35,26 @@ export default function CameraScreen({
       </View>
     );
   }
+
+  const handleClearMemory = async () => {
+    try {
+      // Grab every single key saved on the phone's hard drive
+      const allKeys = await AsyncStorage.getAllKeys();
+      
+      // Filter out ONLY the ones that start with our AI cache tag
+      const cacheKeys = allKeys.filter(key => key.startsWith('@ai_cache_'));
+      
+      if (cacheKeys.length > 0) {
+        await AsyncStorage.multiRemove(cacheKeys);
+        Alert.alert("Memory Cleared", "All cached AI searches have been wiped. You are starting fresh!");
+      } else {
+        Alert.alert("Memory Clean", "No cached searches found.");
+      }
+    } catch (error) {
+      console.log("Error clearing cache:", error);
+      Alert.alert("Error", "Could not clear the memory.");
+    }
+  };
 
   // --- COMPONENT HANDLERS ---
   const handleManualVinSubmit = async (vinInput) => {
@@ -160,6 +181,13 @@ export default function CameraScreen({
       >
         
         <View style={styles.topCenterContainer} pointerEvents="box-none">
+          {/* NEW: CLEAR MEMORY BUTTON */}
+          <TouchableOpacity 
+            style={{ position: 'absolute', top: -40, right: 20, backgroundColor: 'rgba(255, 68, 68, 0.8)', paddingVertical: 8, paddingHorizontal: 15, borderRadius: 20, borderWidth: 1, borderColor: '#ffaaaa' }} 
+            onPress={handleClearMemory}
+          >
+            <Text style={{ color: '#fff', fontSize: 12, fontWeight: 'bold' }}>Clear Memory</Text>
+          </TouchableOpacity>
           {!activeVehicle ? (
             <TouchableOpacity style={styles.manualVinButton} onPress={() => setManualVinVisible(true)}>
               <Ionicons name="create-outline" size={18} color="#fff" style={{ marginRight: 8 }} />
@@ -246,6 +274,11 @@ export default function CameraScreen({
           visible={manualPartVisible} 
           onClose={() => setManualPartVisible(false)} 
           onAddPart={handleAddManualPartToJob} 
+          onInstantSearch={(partName) => {
+             setScannedData(partName); 
+             setCapturedPhoto(null); 
+             setCurrentScreen('InstantSearchScreen');
+          }}
         />
 
       </CameraView>

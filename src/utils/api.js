@@ -55,3 +55,44 @@ export const hashVIN = async (rawVin) => {
   const digest = await Crypto.digestStringAsync(Crypto.CryptoDigestAlgorithm.SHA256, rawVin);
   return digest.substring(0, 10).toUpperCase(); 
 };
+
+// --- 4. AI MECHANIC (GEMINI API) ---
+export const fetchAITorqueSpecs = async (vehicle, part) => {
+  const GEMINI_API_KEY = 'AIzaSyACuv0upTHJ-slSLE_6naIPTkGC32QY-iA'; // Make sure your real key is still here!
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`;
+
+  const prompt = `You are a master heavy-duty diesel and auto mechanic. I am working on a ${vehicle} and need the installation torque specs for: ${part}.
+  CRITICAL INSTRUCTIONS:
+  - Provide ONLY the exact torque specifications.
+  - Use short bullet points.
+  - DO NOT include any introductory text, safety warnings, or extra explanations.
+  - If there are thread variations (lubricated vs dry) or material variations (aluminum vs cast iron), list them on a single line.
+  Just give me the numbers.`;
+
+  try {
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: prompt }] }]
+      })
+    });
+    
+    const json = await response.json();
+    
+    // THE DIAGNOSTIC CATCH: If Google throws an error, return the exact text of the error!
+    if (json.error) {
+      console.log("GOOGLE API ERROR:", json.error);
+      return `Google API Error [${json.error.code}]: ${json.error.message}`;
+    }
+    
+    if (json.candidates && json.candidates.length > 0) {
+      return json.candidates[0].content.parts[0].text;
+    } else {
+      return "The AI returned a blank response. It may have been blocked by safety filters.";
+    }
+  } catch (error) {
+    console.log("Fetch Error:", error);
+    return "Network connection failed. Could not reach Google's servers.";
+  }
+};
