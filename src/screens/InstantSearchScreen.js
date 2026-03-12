@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, Animated, PanResponder, useWindowDimensions, Image, ActivityIndicator, ScrollView } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { fetchAITorqueSpecs } from '../utils/api'; 
@@ -16,6 +17,7 @@ export default function InstantSearchScreen({
   const [searchTitle, setSearchTitle] = useState("AI Spec Analysis"); 
 
   const { width, height } = useWindowDimensions();
+  const insets = useSafeAreaInsets();
   const isLandscape = width > height;
 
   const pan = useRef(new Animated.ValueXY()).current;
@@ -71,7 +73,7 @@ export default function InstantSearchScreen({
   }, [scannedData, activeVehicle]);
 
   return (
-    <View style={[styles.searchContainer, isHighContrast && styles.highContrastContainer]}>
+    <View style={[styles.searchContainer, { paddingTop: isHighContrast ? 0 : Math.max(insets.top + 10, 20) }, isHighContrast && styles.highContrastContainer]}>
       {capturedPhoto && !isHighContrast && (
         <Image source={{ uri: capturedPhoto }} resizeMode="cover" style={StyleSheet.absoluteFillObject} />
       )}
@@ -140,7 +142,7 @@ export default function InstantSearchScreen({
 }
 
 const styles = StyleSheet.create({
-  searchContainer: { flex: 1, backgroundColor: '#1a1a1a', alignItems: 'center', paddingTop: 60 },
+  searchContainer: { flex: 1, backgroundColor: '#1a1a1a', alignItems: 'center' },
   darkTintOverlay: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(0,0,0,0.7)' },
   
   headerArea: { alignItems: 'center', marginBottom: 20, zIndex: -1 },
@@ -196,7 +198,7 @@ const styles = StyleSheet.create({
   backButton: { position: 'absolute', bottom: 40, backgroundColor: '#ff0000', paddingVertical: 18, paddingHorizontal: 50, borderRadius: 30, alignItems: 'center', shadowColor: '#000', shadowOffset: {width: 0, height: 4}, shadowOpacity: 0.3, shadowRadius: 5 },
   buttonText: { color: '#fff', fontSize: 20, fontWeight: 'bold' },
   
-  highContrastContainer: { backgroundColor: '#fff', paddingTop: 0 },
+  highContrastContainer: { backgroundColor: '#fff' },
   highContrastBox: { height: '100%', borderRadius: 0, justifyContent: 'center', shadowOpacity: 0, elevation: 0, maxHeight: '100%' },
   highContrastToggleSafeArea: { top: 60, right: 25 },
   highContrastText: { color: '#000', fontSize: 28, fontWeight: '900', lineHeight: 38 },

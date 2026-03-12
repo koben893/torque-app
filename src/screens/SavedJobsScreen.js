@@ -1,5 +1,6 @@
 import React from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, Image, FlatList, useWindowDimensions } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 
 export default function SavedJobsScreen({ 
@@ -8,9 +9,10 @@ export default function SavedJobsScreen({
   setSelectedJob 
 }) {
   const { width } = useWindowDimensions();
+  const insets = useSafeAreaInsets();
 
   return (
-    <View style={styles.jobContainer}>
+    <View style={[styles.jobContainer, { paddingTop: Math.max(insets.top + 10, 20), paddingBottom: Math.max(insets.bottom + 10, 20) }]}>
       <View style={styles.jobHeaderRow}>
          <TouchableOpacity style={styles.headerBackButton} onPress={() => setCurrentScreen('CameraScreen')}>
            <Ionicons name="chevron-back" size={32} color="#fff" />
@@ -66,7 +68,7 @@ export default function SavedJobsScreen({
 }
 
 const styles = StyleSheet.create({
-  jobContainer: { flex: 1, backgroundColor: '#111', paddingTop: 60, paddingBottom: 40 },
+  jobContainer: { flex: 1, backgroundColor: '#111' },
   jobHeaderRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 20, marginBottom: 20 },
   headerBackButton: { padding: 5 },
   headerText: { color: '#fff', fontSize: 24, fontWeight: 'bold', textAlign: 'center' },

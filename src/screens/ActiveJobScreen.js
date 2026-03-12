@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, Alert, Image, FlatList, Modal, TextInput, useWindowDimensions } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 
 export default function ActiveJobScreen({ 
@@ -12,6 +13,7 @@ export default function ActiveJobScreen({
   setSavedJobs 
 }) {
   const { width } = useWindowDimensions();
+  const insets = useSafeAreaInsets();
 
   const [editModalVisible, setEditModalVisible] = useState(false);
   const [editingPartId, setEditingPartId] = useState(null);
@@ -65,7 +67,7 @@ export default function ActiveJobScreen({
   };
 
   return (
-    <View style={styles.jobContainer}>
+    <View style={[styles.jobContainer, { paddingTop: Math.max(insets.top + 10, 20), paddingBottom: Math.max(insets.bottom + 10, 20) }]}>
       <View style={styles.jobHeaderRow}>
          <TouchableOpacity style={styles.headerBackButton} onPress={() => setCurrentScreen('CameraScreen')}>
            <Ionicons name="chevron-back" size={32} color="#fff" />
@@ -104,9 +106,15 @@ export default function ActiveJobScreen({
                    <Text style={styles.galleryPartTitle}>Part Name / Number</Text>
                    
                    <View style={styles.editableNameRow}>
-                     <Text style={[styles.galleryPartNumber, { flex: 1, fontSize: item.partNumber.length > 15 ? 20 : 28 }]} numberOfLines={2}>
-                       {item.partNumber}
-                     </Text>
+                      <TouchableOpacity 
+                        style={{ flex: 1 }} 
+                        onPress={() => openEditModal(item)}
+                        activeOpacity={0.7}
+                      >
+                        <Text style={[styles.galleryPartNumber, { fontSize: item.partNumber.length > 15 ? 20 : 28 }]} numberOfLines={2}>
+                          {item.partNumber}
+                        </Text>
+                      </TouchableOpacity>
                      
                      <View style={{ flexDirection: 'row' }}>
                        <TouchableOpacity style={styles.editButton} onPress={() => openEditModal(item)}>
@@ -178,7 +186,7 @@ export default function ActiveJobScreen({
 }
 
 const styles = StyleSheet.create({
-  jobContainer: { flex: 1, backgroundColor: '#111', paddingTop: 60, paddingBottom: 40 },
+  jobContainer: { flex: 1, backgroundColor: '#111' },
   jobHeaderRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 20, marginBottom: 20 },
   headerBackButton: { padding: 5 },
   headerText: { color: '#fff', fontSize: 24, fontWeight: 'bold', textAlign: 'center' },

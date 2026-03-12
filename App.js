@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, ActivityIndicator, StyleSheet } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import CameraScreen from './src/screens/CameraScreen';
 import ActiveJobScreen from './src/screens/ActiveJobScreen';
@@ -71,7 +72,7 @@ export default function App() {
 
   // --- ROUTER ---
   return (
-    <View style={{ flex: 1, backgroundColor: '#000' }}>
+    <SafeAreaProvider style={{ flex: 1, backgroundColor: '#000' }}>
       
       {currentScreen === 'CameraScreen' && (
         <CameraScreen 
@@ -128,7 +129,7 @@ export default function App() {
         />
       )}
 
-    </View>
+    </SafeAreaProvider>
   );
 }
 
