@@ -58,7 +58,7 @@ export const hashVIN = async (rawVin) => {
 
 // --- 4. AI MECHANIC (GEMINI API) ---
 export const fetchAITorqueSpecs = async (vehicle, part) => {
-  const GEMINI_API_KEY = 'AIzaSyACuv0upTHJ-slSLE_6naIPTkGC32QY-iA'; // Make sure your real key is still here!
+  const GEMINI_API_KEY = process.env.EXPO_PUBLIC_GEMINI_API_KEY;
   const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`;
 
   const prompt = `You are a master heavy-duty diesel and auto mechanic. I am working on a ${vehicle} and need the installation torque specs for: ${part}.
