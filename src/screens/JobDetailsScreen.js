@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, Image, FlatList, useWindowDimensions, Alert, Modal, TextInput } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 
 export default function JobDetailsScreen({ 
@@ -7,6 +8,7 @@ export default function JobDetailsScreen({
   setActiveVehicle, setJobParts // <-- Make sure these are added!
 }) {
   const { width } = useWindowDimensions();
+  const insets = useSafeAreaInsets();
 
   // Modal states for renaming the whole job
   const [editTitleModalVisible, setEditTitleModalVisible] = useState(false);
@@ -86,7 +88,7 @@ export default function JobDetailsScreen({
   };
 
   return (
-    <View style={styles.jobContainer}>
+    <View style={[styles.jobContainer, { paddingTop: Math.max(insets.top + 10, 20), paddingBottom: Math.max(insets.bottom + 10, 20) }]}>
       
       {/* HEADER WITH EDIT PENCIL */}
       <View style={styles.jobHeaderRow}>
@@ -230,7 +232,7 @@ export default function JobDetailsScreen({
 }
 
 const styles = StyleSheet.create({
-  jobContainer: { flex: 1, backgroundColor: '#111', paddingTop: 60, paddingBottom: 40 },
+  jobContainer: { flex: 1, backgroundColor: '#111' },
   jobHeaderRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 20, marginBottom: 20 },
   headerBackButton: { padding: 5 },
   headerText: { color: '#fff', fontWeight: 'bold', textAlign: 'center' },
