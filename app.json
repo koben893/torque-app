@@ -4,26 +4,31 @@
     "slug": "torque-app",
     "version": "1.0.0",
     "orientation": "default",
-    "icon": "./assets/icon.png",
-    "userInterfaceStyle": "light",
-    "newArchEnabled": true,
+    "icon": "./assets/android/res/mipmap-xxxhdpi/ic_launcher.png",
+    "userInterfaceStyle": "dark",
     "splash": {
-      "image": "./assets/splash-icon.png",
+      "image": "./assets/android/res/mipmap-xxxhdpi/ic_launcher.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#2FC7FA"
     },
     "ios": {
       "supportsTablet": true
     },
     "android": {
+      "package": "com.ctoandco.torqueapp",
+      "versionCode": 5,
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
-      },
-      "edgeToEdgeEnabled": true
+        "foregroundImage": "./assets/android/play_store_512.png",
+        "backgroundColor": "#2FC7FA"
+      }
     },
     "web": {
-      "favicon": "./assets/favicon.png"
+      "favicon": "./assets/web/icon-512.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "ebd2117b-8dec-460c-871b-d16277e16373"
+      }
     }
   }
 }

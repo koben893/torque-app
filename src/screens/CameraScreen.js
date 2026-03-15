@@ -1,6 +1,7 @@
 import React, { useRef, useState } from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, Alert } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, Alert, Platform } from 'react-native';
 import { CameraView, useCameraPermissions } from 'expo-camera';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -17,8 +18,8 @@ export default function CameraScreen({
   savedJobs, setSavedJobs 
 }) {
   const [permission, requestPermission] = useCameraPermissions();
-  const cameraRef = useRef(null); 
-  const isProcessing = useRef(false); 
+  const cameraRef = useRef(null);
+  const isProcessing = useRef(false);
 
   // We only need two simple visibility states now!
   const [manualVinVisible, setManualVinVisible] = useState(false);
@@ -27,12 +28,14 @@ export default function CameraScreen({
   if (!permission) return <View />;
   if (!permission.granted) {
     return (
-      <View style={styles.container}>
-        <Text style={styles.permissionText}>We need your camera to scan parts!</Text>
-        <TouchableOpacity style={styles.grantButton} onPress={requestPermission}>
-          <Text style={styles.buttonText}>Grant Permission</Text>
-        </TouchableOpacity>
-      </View>
+      <SafeAreaView style={styles.container}>
+        <View style={styles.container}>
+          <Text style={styles.permissionText}>We need your camera to scan parts!</Text>
+          <TouchableOpacity style={styles.grantButton} onPress={requestPermission}>
+            <Text style={styles.buttonText}>Grant Permission</Text>
+          </TouchableOpacity>
+        </View>
+      </SafeAreaView>
     );
   }
 
@@ -171,23 +174,23 @@ export default function CameraScreen({
   };
 
   return (
-    <View style={styles.container}>
-      <CameraView 
-        ref={cameraRef} 
-        style={styles.camera} 
+    <SafeAreaView style={styles.container}>
+      <CameraView
+        ref={cameraRef}
+        style={StyleSheet.absoluteFillObject}
         facing="back"
         onBarcodeScanned={(manualVinVisible || manualPartVisible) ? undefined : handleBarcodeScanned}
         barcodeScannerSettings={{ barcodeTypes: ["qr", "upc_a", "code128", "code39"] }}
-      >
-        
-        <View style={styles.topCenterContainer} pointerEvents="box-none">
-          {/* NEW: CLEAR MEMORY BUTTON */}
-          <TouchableOpacity 
-            style={{ position: 'absolute', top: -40, right: 20, backgroundColor: 'rgba(255, 68, 68, 0.8)', paddingVertical: 8, paddingHorizontal: 15, borderRadius: 20, borderWidth: 1, borderColor: '#ffaaaa' }} 
-            onPress={handleClearMemory}
-          >
-            <Text style={{ color: '#fff', fontSize: 12, fontWeight: 'bold' }}>Clear Memory</Text>
-          </TouchableOpacity>
+      />
+
+      <View style={[styles.topCenterContainer, { top: Platform.OS === 'android' ? 40 : 60 }]} pointerEvents="box-none">
+        <TouchableOpacity
+          style={{ alignSelf: 'flex-end', marginRight: 20, marginBottom: 12, backgroundColor: 'rgba(255, 68, 68, 0.8)', paddingVertical: 8, paddingHorizontal: 15, borderRadius: 25, borderWidth: 1, borderColor: '#ffaaaa' }}
+          onPress={handleClearMemory}
+        >
+          <Text style={{ color: '#fff', fontSize: 12, fontWeight: 'bold' }}>Clear Memory</Text>
+        </TouchableOpacity>
+        <View style={{ alignItems: 'center' }}>
           {!activeVehicle ? (
             <TouchableOpacity style={styles.manualVinButton} onPress={() => setManualVinVisible(true)}>
               <Ionicons name="create-outline" size={18} color="#fff" style={{ marginRight: 8 }} />
@@ -242,6 +245,15 @@ export default function CameraScreen({
             <Text style={styles.manualVinButtonText}>Enter Part Manually</Text>
           </TouchableOpacity>
         </View>
+      </View>
+
+      <View style={[styles.overlay, { paddingBottom: 30 }]} pointerEvents="box-none">
+        <TouchableOpacity style={styles.sideMenuButton} onPress={() => setCurrentScreen('ActiveJobScreen')}>
+          <Ionicons name="folder-open" size={26} color="#fff" />
+          {(jobParts.length > 0 || activeVehicle) && (
+            <View style={styles.badge}><Text style={styles.badgeText}>{jobParts.length}</Text></View>
+          )}
+        </TouchableOpacity>
 
         <View style={styles.overlay} pointerEvents="box-none">
            <TouchableOpacity style={styles.sideMenuButton} onPress={() => setCurrentScreen('ActiveJobScreen')}>
@@ -263,26 +275,7 @@ export default function CameraScreen({
            </TouchableOpacity>
         </View>
 
-        {/* Clean, Decoupled Components! */}
-        <ManualVinModal 
-          visible={manualVinVisible} 
-          onClose={() => setManualVinVisible(false)} 
-          onSubmit={handleManualVinSubmit} 
-        />
-        
-        <ManualPartModal 
-          visible={manualPartVisible} 
-          onClose={() => setManualPartVisible(false)} 
-          onAddPart={handleAddManualPartToJob} 
-          onInstantSearch={(partName) => {
-             setScannedData(partName); 
-             setCapturedPhoto(null); 
-             setCurrentScreen('InstantSearchScreen');
-          }}
-        />
-
-      </CameraView>
-    </View>
+    </SafeAreaView>
   );
 }
 

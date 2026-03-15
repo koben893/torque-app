@@ -40,20 +40,20 @@ export const fetchProductByBarcode = async (barcode) => {
       if (fetchedTitle.includes("http://") || fetchedTitle.includes("https://") || fetchedTitle.includes(".com")) {
         return barcode;
       }
-      return fetchedTitle; 
+      return fetchedTitle;
     }
-    
-    return barcode; 
+
+    return barcode;
   } catch (error) {
     console.log("Barcode API Error:", error);
-    return barcode; 
+    return barcode;
   }
 };
 
 // --- 3. CRYPTO HASHING ---
 export const hashVIN = async (rawVin) => {
   const digest = await Crypto.digestStringAsync(Crypto.CryptoDigestAlgorithm.SHA256, rawVin);
-  return digest.substring(0, 10).toUpperCase(); 
+  return digest.substring(0, 10).toUpperCase();
 };
 
 // --- 4. AI MECHANIC (GEMINI API) ---
@@ -67,6 +67,7 @@ export const fetchAITorqueSpecs = async (vehicle, part) => {
   - Use short bullet points.
   - DO NOT include any introductory text, safety warnings, or extra explanations.
   - If there are thread variations (lubricated vs dry) or material variations (aluminum vs cast iron), list them on a single line.
+  - If no specific torque specifications can be found for this part on this vehicle, return EXACTLY: "No torque specs found."
   Just give me the numbers.`;
 
   try {
@@ -74,18 +75,21 @@ export const fetchAITorqueSpecs = async (vehicle, part) => {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        contents: [{ parts: [{ text: prompt }] }]
+        contents: [{ parts: [{ text: prompt }] }],
+        generationConfig: {
+          temperature: 0.1, // Forces deterministic, non-creative exact answers (faster)
+        }
       })
     });
-    
+
     const json = await response.json();
-    
+
     // THE DIAGNOSTIC CATCH: If Google throws an error, return the exact text of the error!
     if (json.error) {
       console.log("GOOGLE API ERROR:", json.error);
       return `Google API Error [${json.error.code}]: ${json.error.message}`;
     }
-    
+
     if (json.candidates && json.candidates.length > 0) {
       return json.candidates[0].content.parts[0].text;
     } else {
