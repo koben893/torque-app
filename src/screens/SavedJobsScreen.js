@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, Image, FlatList, useWindowDimensions } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, Image, FlatList, useWindowDimensions, Linking } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 
@@ -10,6 +10,10 @@ export default function SavedJobsScreen({
 }) {
   const { width } = useWindowDimensions();
   const insets = useSafeAreaInsets();
+
+  const openLink = (url) => {
+    Linking.openURL(url).catch(err => console.error("Couldn't load page", err));
+  };
 
   return (
     <View style={[styles.jobContainer, { paddingTop: Math.max(insets.top + 10, 20), paddingBottom: Math.max(insets.bottom + 10, 20) }]}>
@@ -30,39 +34,53 @@ export default function SavedJobsScreen({
           <Text style={[styles.subText, { marginTop: 20 }]}>No vehicles saved yet.</Text>
         </View>
       ) : (
-        <FlatList
-          data={savedJobs}
-          keyExtractor={(item) => item.id}
-          horizontal={true}
-          pagingEnabled={true}
-          showsHorizontalScrollIndicator={false}
-          renderItem={({ item }) => (
-            <TouchableOpacity
-              activeOpacity={0.9}
-              onPress={() => {
-                setSelectedJob(item);
-                setCurrentScreen('JobDetailsScreen');
-              }}
-            >
-              <View style={[styles.galleryCard, { width: width * 0.9, marginHorizontal: width * 0.05 }]}>
-                {item.parts[0]?.photo ? (
-                  <Image source={{ uri: item.parts[0].photo }} style={styles.galleryImage} resizeMode="cover" />
-                ) : (
-                  <View style={styles.noImagePlaceholder}><Ionicons name="construct" size={60} color="#555" /></View>
-                )}
-                <View style={styles.galleryInfoBox}>
-                  <Text style={[styles.galleryPartNumber, { fontSize: 22, textAlign: 'center' }]}>{item.title}</Text>
-                  <Text style={styles.galleryPartTitle}>ID: {item.vin}</Text>
-                  <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 15 }}>
-                    <Text style={[styles.subText, { marginTop: 0, marginRight: 5 }]}>View {item.parts.length} part(s)</Text>
-                    <Ionicons name="arrow-forward-circle" size={18} color="#aaa" />
+        <View style={{ flex: 1 }}>
+          <FlatList
+            data={savedJobs}
+            keyExtractor={(item) => item.id}
+            horizontal={true}
+            pagingEnabled={true}
+            showsHorizontalScrollIndicator={false}
+            renderItem={({ item }) => (
+              <TouchableOpacity
+                activeOpacity={0.9}
+                onPress={() => {
+                  setSelectedJob(item);
+                  setCurrentScreen('JobDetailsScreen');
+                }}
+              >
+                <View style={[styles.galleryCard, { width: width * 0.9, marginHorizontal: width * 0.05 }]}>
+                  {item.parts[0]?.photo ? (
+                    <Image source={{ uri: item.parts[0].photo }} style={styles.galleryImage} resizeMode="cover" />
+                  ) : (
+                    <View style={styles.noImagePlaceholder}><Ionicons name="construct" size={60} color="#555" /></View>
+                  )}
+                  <View style={styles.galleryInfoBox}>
+                    <Text style={[styles.galleryPartNumber, { fontSize: 22, textAlign: 'center' }]}>{item.title}</Text>
+                    <Text style={styles.galleryPartTitle}>ID: {item.vin}</Text>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 15 }}>
+                      <Text style={[styles.subText, { marginTop: 0, marginRight: 5 }]}>View {item.parts.length} part(s)</Text>
+                      <Ionicons name="arrow-forward-circle" size={18} color="#aaa" />
+                    </View>
                   </View>
                 </View>
-              </View>
-            </TouchableOpacity>
-          )}
-        />
+              </TouchableOpacity>
+            )}
+          />
+        </View>
       )}
+
+      {/* --- LEGAL LINKS FOOTER --- */}
+      <View style={styles.legalFooter}>
+        <TouchableOpacity onPress={() => openLink('https://ctoand.co/torqueai-privacypolicy')}>
+          <Text style={styles.legalLinkText}>Privacy Policy</Text>
+        </TouchableOpacity>
+        <Text style={styles.legalDivider}> | </Text>
+        <TouchableOpacity onPress={() => openLink('https://ctoand.co/torqueai-termsofservice')}>
+          <Text style={styles.legalLinkText}>Terms of Service</Text>
+        </TouchableOpacity>
+      </View>
+
     </View>
   );
 }
@@ -79,5 +97,9 @@ const styles = StyleSheet.create({
   noImagePlaceholder: { width: '100%', height: '70%', backgroundColor: '#333', justifyContent: 'center', alignItems: 'center' },
   galleryInfoBox: { padding: 20, justifyContent: 'center', alignItems: 'center' },
   galleryPartTitle: { color: '#888', fontSize: 14, textTransform: 'uppercase', letterSpacing: 1 },
-  galleryPartNumber: { color: '#fff', fontWeight: 'bold', marginTop: 5 }
+  galleryPartNumber: { color: '#fff', fontWeight: 'bold', marginTop: 5 },
+
+  legalFooter: { flexDirection: 'row', justifyContent: 'center', alignItems: 'center', paddingTop: 10, paddingBottom: 5 },
+  legalLinkText: { color: '#888', fontSize: 13, textDecorationLine: 'underline' },
+  legalDivider: { color: '#555', fontSize: 14, marginHorizontal: 8 }
 });
