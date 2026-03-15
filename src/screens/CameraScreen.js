@@ -1,7 +1,7 @@
 import React, { useRef, useState } from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, Alert } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, Alert, Platform } from 'react-native';
 import { CameraView, useCameraPermissions } from 'expo-camera';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -20,7 +20,6 @@ export default function CameraScreen({
   const [permission, requestPermission] = useCameraPermissions();
   const cameraRef = useRef(null);
   const isProcessing = useRef(false);
-  const insets = useSafeAreaInsets();
 
   // We only need two simple visibility states now!
   const [manualVinVisible, setManualVinVisible] = useState(false);
@@ -29,12 +28,14 @@ export default function CameraScreen({
   if (!permission) return <View />;
   if (!permission.granted) {
     return (
-      <View style={styles.container}>
-        <Text style={styles.permissionText}>We need your camera to scan parts!</Text>
-        <TouchableOpacity style={styles.grantButton} onPress={requestPermission}>
-          <Text style={styles.buttonText}>Grant Permission</Text>
-        </TouchableOpacity>
-      </View>
+      <SafeAreaView style={styles.container}>
+        <View style={styles.container}>
+          <Text style={styles.permissionText}>We need your camera to scan parts!</Text>
+          <TouchableOpacity style={styles.grantButton} onPress={requestPermission}>
+            <Text style={styles.buttonText}>Grant Permission</Text>
+          </TouchableOpacity>
+        </View>
+      </SafeAreaView>
     );
   }
 
@@ -175,7 +176,7 @@ export default function CameraScreen({
   };
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <CameraView
         ref={cameraRef}
         style={StyleSheet.absoluteFillObject}
@@ -184,8 +185,7 @@ export default function CameraScreen({
         barcodeScannerSettings={{ barcodeTypes: ["qr", "upc_a", "code128", "code39"] }}
       />
 
-      <View style={[styles.topCenterContainer, { top: Math.max(insets.top + 10, 20) }]} pointerEvents="box-none">
-        {/* NEW: CLEAR MEMORY BUTTON */}
+      <View style={[styles.topCenterContainer, { top: Platform.OS === 'android' ? 40 : 60 }]} pointerEvents="box-none">
         <TouchableOpacity
           style={{ alignSelf: 'flex-end', marginRight: 20, marginBottom: 12, backgroundColor: 'rgba(255, 68, 68, 0.8)', paddingVertical: 8, paddingHorizontal: 15, borderRadius: 25, borderWidth: 1, borderColor: '#ffaaaa' }}
           onPress={handleClearMemory}
@@ -249,7 +249,7 @@ export default function CameraScreen({
         </View>
       </View>
 
-      <View style={[styles.overlay, { paddingBottom: Math.max(insets.bottom + 10, 30) }]} pointerEvents="box-none">
+      <View style={[styles.overlay, { paddingBottom: 30 }]} pointerEvents="box-none">
         <TouchableOpacity style={styles.sideMenuButton} onPress={() => setCurrentScreen('ActiveJobScreen')}>
           <Ionicons name="folder-open" size={26} color="#fff" />
           {(jobParts.length > 0 || activeVehicle) && (
@@ -287,7 +287,7 @@ export default function CameraScreen({
         }}
       />
 
-    </View>
+    </SafeAreaView>
   );
 }
 
